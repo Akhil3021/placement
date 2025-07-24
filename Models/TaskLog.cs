@@ -15,7 +15,11 @@ public partial class TaskLog
 
     public DateTime? EndTime { get; set; }
 
-    public DateTime? BreakTime { get; set; }
+    public TimeOnly? BreakTime { get; set; }
+
+    public TimeOnly? CompleteTime { get; set; }
+
+    public string? Reason { get; set; }
 
     public virtual Task? Task { get; set; }
 }

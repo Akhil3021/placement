@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.OpenApi;
 
 namespace placement.Models;
 
@@ -25,5 +23,3 @@ public partial class User
 
     public virtual ICollection<Task> TaskAssignedToNavigations { get; set; } = new List<Task>();
 }
-
-

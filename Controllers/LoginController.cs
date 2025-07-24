@@ -35,6 +35,7 @@ namespace placement.Controllers
             {
                 return Unauthorized("Invalid username and password");
             }
+            HttpContext.Session.SetString("UserId", user.Id.ToString());
             var token = GenerateToken(user);
 
             return Ok(new { token });
@@ -65,15 +66,17 @@ namespace placement.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        [Authorize]
         [HttpGet("profile")]
         public IActionResult GetProfile()
         {
-            
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var username = User.Identity?.Name;
-
-            return Ok(new { UserId = userId, Username = username });
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("No session found, please login again.");
+            }
+            var user = _context.Users.Find(int.Parse(userId));
+            var username = User.Identity?.Name; // or fetch from DB
+            return Ok(new { UserId = user.Id, Username = user.Name ,UserRole = user.Role});
         }
         // GET: api/<LoginController>
         [HttpGet]

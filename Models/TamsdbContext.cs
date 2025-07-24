@@ -112,6 +112,10 @@ public partial class TamsdbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("description");
             entity.Property(e => e.EstimatedHours).HasColumnName("estimated_hours");
+            entity.Property(e => e.Priority)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("priority");
             entity.Property(e => e.Title)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -133,13 +137,16 @@ public partial class TamsdbContext : DbContext
             entity.ToTable("task_logs");
 
             entity.Property(e => e.Lid).HasColumnName("lid");
-            entity.Property(e => e.BreakTime)
-                .HasColumnType("datetime")
-                .HasColumnName("break_time");
+            entity.Property(e => e.BreakTime).HasColumnName("break_time");
+            entity.Property(e => e.CompleteTime).HasColumnName("complete_time");
             entity.Property(e => e.EmpId).HasColumnName("emp_id");
             entity.Property(e => e.EndTime)
                 .HasColumnType("datetime")
                 .HasColumnName("end_time");
+            entity.Property(e => e.Reason)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("reason");
             entity.Property(e => e.StartTime)
                 .HasColumnType("datetime")
                 .HasColumnName("start_time");
