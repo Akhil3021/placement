@@ -19,6 +19,8 @@ public partial class Task
 
     public DateTime? CreatedAt { get; set; }
 
+    public string? Priority { get; set; }
+
     public virtual User? AssignedByNavigation { get; set; }
 
     public virtual User? AssignedToNavigation { get; set; }
