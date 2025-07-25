@@ -48,6 +48,7 @@ namespace placement.Controllers
         [HttpPost]
         public async Task<ActionResult<placement.Models.Task>> PostTask(placement.Models.Task task)
         {
+
             task.CreatedAt = DateTime.Now;
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
@@ -75,12 +76,28 @@ namespace placement.Controllers
                 .Where(t => t.AssignedBy == userId)
                 .ToListAsync();
         }
+        [HttpGet("employees")]
+        public async Task<ActionResult<IEnumerable<User>>> GetEmployees()
+        {
+            var employees = await _context.Users
+                .Where(u => u.Role == "Employee")
+                .ToListAsync();
+
+            if (employees == null || employees.Count == 0)
+            {
+                return NotFound("No employees found.");
+            }
+
+            return Ok(employees);
+        }
 
         // POST: api/Tasks/assign
         [HttpPost("assign")]
         public async Task<ActionResult<placement.Models.Task>> AssignTask([FromBody] placement.Models.Task task)
         {
+            //var userId = HttpContext.Session.GetString("UserId");
             task.CreatedAt = DateTime.Now;
+            //task.AssignedBy = int.Parse(userId);
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
 
@@ -105,6 +122,34 @@ namespace placement.Controllers
 
         //    return CreatedAtAction(nameof(GetTask), new { id = task.Tid }, task);
         //}
+
+        [HttpPut("update-timespend")]
+        public async Task<IActionResult> UpdateTimeSpend([FromBody] TimeSpendUpdateRequest request)
+        {
+            if (request == null || request.TaskId <= 0)
+            {
+                return BadRequest(new { message = "Invalid request data." });
+            }
+
+            var task = await _context.Tasks.FindAsync(request.TaskId);
+            if (task == null)
+            {
+                return NotFound(new { message = $"Task with ID {request.TaskId} not found." });
+            }
+
+            // ✅ Round the value to 2 decimal places
+            task.TimeSpend = Math.Round(request.TimeSpend, 2);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Time spent updated successfully",
+                taskId = task.Tid,
+                updatedTimeSpend = task.TimeSpend
+            });
+        }
+
 
 
         private bool TaskExists(int id)

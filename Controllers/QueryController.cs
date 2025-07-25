@@ -44,27 +44,69 @@ namespace placement.Controllers
         }
 
 
+        //[HttpPost("add")]
+        //public async Task<IActionResult> CreateQuery([FromForm] QueryDto model)
+        //{
+
+        //    var userId = HttpContext.Session.GetString("UserId");
+
+        //    // ✅ Use TryParse for safety
+        //    if (!int.TryParse(userId, out int parsedUserId) || parsedUserId == 0)
+        //        return Unauthorized(new { message = "User not logged in or invalid user ID" });
+
+        //    string? savedFileName = null;
+
+        //    if (model.Attachment != null)
+        //    {
+        //        string imageName = new string(Path.GetFileNameWithoutExtension(model.Attachment.FileName)
+        //            .Take(10).ToArray()).Replace(' ', '-');
+        //        imageName += "-" + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(model.Attachment.FileName);
+
+        //        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        //        Directory.CreateDirectory(uploadsFolder);
+
+        //        var filePath = Path.Combine(uploadsFolder, imageName);
+        //        using (var stream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            await model.Attachment.CopyToAsync(stream);
+        //        }
+        //        savedFileName = imageName;
+        //    }
+
+        //    var query = new Query
+        //    {
+        //        TaskId = model.TaskId,
+        //        RaisedBy = parsedUserId,
+        //        Subject = model.Subject,
+        //        Description = model.Description,
+        //        Attachement = savedFileName,
+        //        Status = "Open",
+        //        CreatedAt = DateTime.UtcNow
+        //    };
+
+        //    _db.Queries.Add(query);
+        //    await _db.SaveChangesAsync();
+
+        //    return Ok(new { message = "Query created", query });
+        //}
+
         [HttpPost("add")]
         public async Task<IActionResult> CreateQuery([FromForm] QueryDto model)
         {
-            var userId = GetUserId();
-            if (int.Parse(userId) == 0)
-                return Unauthorized(new { message = "User not logged in" });
+            if (model.UserId == null || model.UserId <= 0)
+                return BadRequest(new { message = "Invalid User ID provided" });
 
             string? savedFileName = null;
+
             if (model.Attachment != null)
             {
-                // ✅ create unique name
                 string imageName = new string(Path.GetFileNameWithoutExtension(model.Attachment.FileName)
                     .Take(10).ToArray()).Replace(' ', '-');
-                imageName = imageName + "-" + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(model.Attachment.FileName);
+                imageName += "-" + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(model.Attachment.FileName);
 
-                // ✅ save to /uploads folder
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
+                Directory.CreateDirectory(uploadsFolder);
+
                 var filePath = Path.Combine(uploadsFolder, imageName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -76,7 +118,7 @@ namespace placement.Controllers
             var query = new Query
             {
                 TaskId = model.TaskId,
-                RaisedBy = int.Parse(userId),
+                RaisedBy = model.UserId.Value,
                 Subject = model.Subject,
                 Description = model.Description,
                 Attachement = savedFileName,
@@ -90,7 +132,8 @@ namespace placement.Controllers
             return Ok(new { message = "Query created", query });
         }
 
-        
+
+
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateQuery(int id, [FromForm] QueryDto model)
         {
