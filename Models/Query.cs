@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace placement.Models;
 
@@ -22,8 +23,8 @@ public partial class Query
     public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<QueryResponse> QueryResponses { get; set; } = new List<QueryResponse>();
-
+    [JsonIgnore]
     public virtual User? RaisedByNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Task? Task { get; set; }
 }

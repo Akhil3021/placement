@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace placement.Models;
 
@@ -24,7 +25,7 @@ public partial class Task
     public virtual User? AssignedByNavigation { get; set; }
 
     public virtual User? AssignedToNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<Query> Queries { get; set; } = new List<Query>();
 
     public virtual ICollection<TaskLog> TaskLogs { get; set; } = new List<TaskLog>();

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using placement.Controllers;
 using placement.Models;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +56,19 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowReactApp",
+//         builder =>
+//         {
+//             builder.WithOrigins("http://localhost:5173", "http://localhost:8080") // React app URL
+//                    .AllowAnyHeader()
+//                    .AllowAnyMethod()
+//                    .AllowCredentials();
+                
+//         });
+// });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,9 +77,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
+
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowReactApp");
 app.UseAuthorization();
 app.UseCors("AllowAll");
 

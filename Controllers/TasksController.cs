@@ -60,9 +60,12 @@ namespace placement.Controllers
         public async Task<ActionResult<IEnumerable<placement.Models.Task>>> GetTasksAssignedTo(int userId)
         {
             return await _context.Tasks
+                .Include(t => t.AssignedByNavigation)
                 .Where(t => t.AssignedTo == userId)
                 .ToListAsync();
         }
+
+
 
         // GET: api/Tasks/assigned-by/1
         [HttpGet("assigned-by/{userId}")]
