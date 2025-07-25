@@ -25,20 +25,26 @@ namespace placement.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto loginDto)
         {
-            if(string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
+            if (string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
             {
                 return BadRequest("Username or Password");
             }
 
-            var user = _context.Users.FirstOrDefault(u=>u.Email == loginDto.Email && u.Password == loginDto.Password);
-            if(user == null)
+            var user = _context.Users.FirstOrDefault(u => u.Email == loginDto.Email && u.Password == loginDto.Password);
+            if (user == null)
             {
                 return Unauthorized("Invalid username and password");
             }
+
             HttpContext.Session.SetString("UserId", user.Id.ToString());
             var token = GenerateToken(user);
 
-            return Ok(new { token });
+            // ✅ Return both token and user ID
+            return Ok(new
+            {
+                token = token,
+                userId = user.Id
+            });
         }
 
 

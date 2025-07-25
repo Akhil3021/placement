@@ -4,6 +4,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using placement.Controllers;
 using placement.Models;
+using System.Security.Claims;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -47,24 +47,24 @@ namespace placement.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> CreateQuery([FromForm] QueryDto model)
         {
-            var userId = GetUserId();
-            if (int.Parse(userId) == 0)
-                return Unauthorized(new { message = "User not logged in" });
+
+            var userId = HttpContext.Session.GetString("UserId");
+
+            // ✅ Use TryParse for safety
+            if (!int.TryParse(userId, out int parsedUserId) || parsedUserId == 0)
+                return Unauthorized(new { message = "User not logged in or invalid user ID" });
 
             string? savedFileName = null;
+
             if (model.Attachment != null)
             {
-                // ✅ create unique name
                 string imageName = new string(Path.GetFileNameWithoutExtension(model.Attachment.FileName)
                     .Take(10).ToArray()).Replace(' ', '-');
-                imageName = imageName + "-" + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(model.Attachment.FileName);
+                imageName += "-" + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(model.Attachment.FileName);
 
-                // ✅ save to /uploads folder
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
+                Directory.CreateDirectory(uploadsFolder);
+
                 var filePath = Path.Combine(uploadsFolder, imageName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -76,7 +76,7 @@ namespace placement.Controllers
             var query = new Query
             {
                 TaskId = model.TaskId,
-                RaisedBy = int.Parse(userId),
+                RaisedBy = parsedUserId,
                 Subject = model.Subject,
                 Description = model.Description,
                 Attachement = savedFileName,
@@ -90,7 +90,8 @@ namespace placement.Controllers
             return Ok(new { message = "Query created", query });
         }
 
-        
+
+
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateQuery(int id, [FromForm] QueryDto model)
         {
