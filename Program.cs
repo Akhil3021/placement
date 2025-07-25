@@ -33,10 +33,20 @@ builder.Services.AddAuthentication(options =>
 
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        RoleClaimType = ClaimTypes.Role
     };
 }
 );
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -47,18 +57,18 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:5173", "http://localhost:8080") // React app URL
-                   .AllowAnyHeader()
-                   .AllowAnyMethod()
-                   .AllowCredentials();
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowReactApp",
+//         builder =>
+//         {
+//             builder.WithOrigins("http://localhost:5173", "http://localhost:8080") // React app URL
+//                    .AllowAnyHeader()
+//                    .AllowAnyMethod()
+//                    .AllowCredentials();
                 
-        });
-});
+//         });
+// });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -77,6 +87,8 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthorization();
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseSession();
 

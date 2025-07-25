@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using placement.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace placement.Controllers
 {
@@ -84,6 +86,26 @@ namespace placement.Controllers
 
             return CreatedAtAction(nameof(GetTask), new { id = task.Tid }, task);
         }
+
+        //[Authorize(Roles = "Superior")]
+        //[HttpPost("assign")]
+        //public async Task<ActionResult<placement.Models.Task>> AssignTask([FromBody] placement.Models.Task task)
+        //{
+        //    var superiorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    if (string.IsNullOrEmpty(superiorId))
+        //    {
+        //        return Unauthorized("User identity not found in token.");
+        //    }
+
+        //    task.AssignedBy = int.Parse(superiorId);  // ✅ Assign superior's ID from JWT
+        //    task.CreatedAt = DateTime.Now;
+
+        //    _context.Tasks.Add(task);
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction(nameof(GetTask), new { id = task.Tid }, task);
+        //}
+
 
         private bool TaskExists(int id)
         {
